@@ -1,0 +1,9 @@
+[submodule "webrtc"]
+	path = webrtc
+	url = https://chromium.googlesource.com/external/webrtc
+[submodule "abseil-cpp"]
+	path = abseil-cpp
+	url = https://github.com/abseil/abseil-cpp.git
+[submodule "chromium"]
+	path = chromium
+	url = https://github.com/chromium/chromium
