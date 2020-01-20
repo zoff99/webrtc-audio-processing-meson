@@ -4,6 +4,3 @@
 [submodule "abseil-cpp"]
 	path = abseil-cpp
 	url = https://github.com/abseil/abseil-cpp.git
-[submodule "chromium"]
-	path = chromium
-	url = https://github.com/chromium/chromium
