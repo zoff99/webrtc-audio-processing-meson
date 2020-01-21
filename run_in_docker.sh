@@ -25,10 +25,16 @@ flex \
 bison \
 autotools-dev \
 autoconf \
+automake \
 wget \
+curl \
+python \
+python3 \
 meson \
 unzip \
 ninja-build
+
+mkdir -p /data/
 
 cd /data/ && mkdir -p work/
 cd work && rm -Rf *
@@ -54,6 +60,17 @@ rm /usr/bin/ninja
 ln -s /data/work/ninja_/ninja /usr/bin/ninja
 # ----- ninja ----------------------------------------------------------------------
 
+cd /data/
+_HOME2_=$(dirname $0)
+export _HOME2_
+_HOME_=$(cd $_HOME2_;pwd)
+export _HOME_
+
+# ----- android --------------------------------------------------------------------
+. /data/android_stuff.sh
+# ----- android --------------------------------------------------------------------
+
+
 cd /data/work/
 
 # --------------- CODE -------------------------------------------------------------
@@ -61,7 +78,7 @@ cd /data/work/
 
 git clone https://github.com/zoff99/webrtc-audio-processing-meson
 cd webrtc-audio-processing-meson/
-git checkout zoff99/android
+git checkout zoff99/android_002
 # --------------- CODE -------------------------------------------------------------
 
 
@@ -70,6 +87,9 @@ git submodule update --init --depth=1
 meson . build
 ninja -C build
 ' > ./data/runme.sh
+
+cp android_stuff.sh ./data/android_stuff.sh
+
 
 if [ "$1""x" == "githubworkflowx" ]; then
     cd ./data/
@@ -84,6 +104,6 @@ else
       -v "$_HOME_"/data:/data \
       --net=host \
       "$system_to_build_for" \
-      /bin/bash /data/runme.sh
+      /bin/bash # /data/runme.sh
 
 fi
