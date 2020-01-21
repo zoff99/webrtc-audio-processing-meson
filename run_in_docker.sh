@@ -71,14 +71,19 @@ meson . build
 ninja -C build
 ' > ./data/runme.sh
 
+if [ "$1""x" == "githubworkflowx" ]; then
+    cd ./data/
+    /bin/bash ./runme.sh
+else
 
-system_to_build_for="ubuntu:18.04"
+    system_to_build_for="ubuntu:18.04"
 
 
-cd $_HOME_/
-docker run -ti --rm \
-  -v "$_HOME_"/data:/data \
-  --net=host \
-  "$system_to_build_for" \
-  /bin/bash /data/runme.sh
+    cd $_HOME_/
+    docker run -ti --rm \
+      -v "$_HOME_"/data:/data \
+      --net=host \
+      "$system_to_build_for" \
+      /bin/bash /data/runme.sh
 
+fi
