@@ -12,6 +12,8 @@ mkdir -p ./data/
 echo '
 id -a
 
+cp -av android_stuff.sh /data/android_stuff.sh
+
 export DEBIAN_FRONTEND=noninteractive
 export DEBIAN_PRIORITY=critical
 
@@ -88,7 +90,7 @@ meson . build
 ninja -C build
 ' > ./data/runme.sh
 
-cp android_stuff.sh ./data/android_stuff.sh
+cp -av android_stuff.sh ./data/android_stuff.sh
 
 
 if [ "$1""x" == "githubworkflowx" ]; then
