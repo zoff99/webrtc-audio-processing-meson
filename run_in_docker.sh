@@ -73,7 +73,7 @@ ninja -C build
 
 if [ "$1""x" == "githubworkflowx" ]; then
     cd ./data/
-    /bin/bash ./runme.sh
+    sudo /bin/bash ./runme.sh
 else
 
     system_to_build_for="ubuntu:18.04"
