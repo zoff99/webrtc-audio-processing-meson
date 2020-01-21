@@ -18,7 +18,7 @@ cd webrtc
 #     find modules/audio_coding/ -name "*.c"
 #     find modules/audio_coding/ -name "*.h"
  ) \
-    | awk '{ print "'"\t\'"'" $0 "'"\'"'," }' \
+    | awk '{ print "'"\t'"'" $0 "'"'"'," }' \
     | grep -v test \
     | grep -v /aec_dump/ \
     | grep -v /mock_ \
