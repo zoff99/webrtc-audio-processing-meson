@@ -74,17 +74,23 @@ webrtc_files += files(
     'third_party/pffft/src/pffft.h'
 )
 
+if host_machine.cpu() == 'x86_64'
+    webrtc_files += files(
+        'webrtc/modules/audio_processing/utility/ooura_fft_sse2.cc',
+        'webrtc/common_audio/resampler/sinc_resampler_sse.cc',
+        'webrtc/common_audio/fir_filter_sse.cc',
+    )
+endif
+
 libwebrtc_audio_processing = static_library(
   'webrtc_audio_processing',
   webrtc_files,
   include_directories : [inc_common],
-  # link_args: '-lpthread'
-  #cpp_args: internal_args,
 )
 
 libaec = shared_library(
   'aec',
-  ['aec_test.cpp'],
+  ['aec_jni.cpp'],
   include_directories : [inc_common],
   link_with: [libwebrtc_audio_processing],
   cpp_args: '-DQT_NO_KEYWORDS',
@@ -92,13 +98,9 @@ libaec = shared_library(
 )
 
 
-
-#executable('aec_test', ['aec_test.cpp'],
-#    link_with: [libwebrtc_audio_processing],
-#    include_directories: inc_common,
-#    cpp_args: '-DQT_NO_KEYWORDS',
-#    # link_args: '-lpthread' # Hack, should be exported by libwebrtc
-#)
-
-#all_libraries += libaudio_processing
+executable('aec_test', ['aec_test.cpp'],
+    link_with: [libwebrtc_audio_processing],
+    include_directories: inc_common,
+    cpp_args: '-DQT_NO_KEYWORDS',
+)
 
