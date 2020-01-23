@@ -57,10 +57,10 @@ python \
 python3 \
 meson \
 unzip \
-ninja-build
+ninja-build > /dev/null 2> /dev/null
 
-apt-get -y --force-yes remove meson
-apt-get -y --force-yes remove ninja-build
+apt-get -y --force-yes remove meson > /dev/null 2> /dev/null
+apt-get -y --force-yes remove ninja-build > /dev/null 2> /dev/null
 
 mkdir -p /data/
 
@@ -72,8 +72,8 @@ cd /data/work/
 mkdir meson_
 cd meson_/
 meson_version="0.49.2"
-wget https://github.com/mesonbuild/meson/releases/download/"$meson_version"/meson-"$meson_version".tar.gz
-tar -xzf meson-"$meson_version".tar.gz
+wget https://github.com/mesonbuild/meson/releases/download/"$meson_version"/meson-"$meson_version".tar.gz > /dev/null 2> /dev/null
+tar -xzf meson-"$meson_version".tar.gz > /dev/null 2> /dev/null
 rm /usr/bin/meson
 ln -s /data/work/meson_/meson-"$meson_version"/meson.py /usr/bin/meson
 # ----- meson ----------------------------------------------------------------------
@@ -83,8 +83,8 @@ ln -s /data/work/meson_/meson-"$meson_version"/meson.py /usr/bin/meson
 cd /data/work/
 mkdir ninja_
 cd ninja_/
-wget https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip
-unzip ninja-linux.zip
+wget https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip > /dev/null 2> /dev/null
+unzip ninja-linux.zip > /dev/null 2> /dev/null
 rm /usr/bin/ninja
 ln -s /data/work/ninja_/ninja /usr/bin/ninja
 # ----- ninja ----------------------------------------------------------------------
@@ -111,7 +111,7 @@ cd /data/work/
 
 # --------------- CODE -------------------------------------------------------------
 mkdir -p webrtc-audio-processing-meson/
-rsync -a /repo/ webrtc-audio-processing-meson/
+rsync -a /repo/ webrtc-audio-processing-meson/ > /dev/null 2> /dev/null
 cd webrtc-audio-processing-meson
 # --------------- CODE -------------------------------------------------------------
 

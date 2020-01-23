@@ -57,10 +57,10 @@ if [ "$full""x" == "1x" ]; then
 
     if [ "$download_full""x" == "1x" ]; then
         cd $WRKSPACEDIR
-        curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -o sdk.zip
+        curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -o sdk.zip > /dev/null 2> /dev/null
 
         cd $WRKSPACEDIR
-        curl https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip -o android-ndk-r13b-linux-x86_64.zip
+        curl https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip -o android-ndk-r13b-linux-x86_64.zip > /dev/null 2> /dev/null
     fi
 
     cd $WRKSPACEDIR
@@ -69,7 +69,7 @@ if [ "$full""x" == "1x" ]; then
         > sdk.zip.sha256
     sha256sum -c sdk.zip.sha256 || exit 1
     # --- verfiy SDK package ---
-    unzip sdk.zip
+    unzip sdk.zip > /dev/null 2> /dev/null
     mkdir -p "$_SDK_"
     mv -v tools "$_SDK_"/
     yes | "$_SDK_"/tools/bin/sdkmanager --licenses > /dev/null 2>&1
@@ -108,7 +108,7 @@ if [ "$full""x" == "1x" ]; then
     #    > android-ndk-r13b-linux-x86_64.zip.sha256
     #sha256sum -c android-ndk-r13b-linux-x86_64.zip.sha256 || exit 1
     # --- verfiy NDK package ---
-    unzip android-ndk-r13b-linux-x86_64.zip
+    unzip android-ndk-r13b-linux-x86_64.zip > /dev/null 2> /dev/null
     rm -Rf "$_NDK_"
     mv -v android-ndk-r??? "$_NDK_"
 
@@ -131,7 +131,7 @@ if [ "$full""x" == "1x" ]; then
 
     mkdir -p "$PKG_CONFIG_PATH"
     $_NDK_/build/tools/make_standalone_toolchain.py --arch "$TOOLCHAIN_ARCH" \
-        --install-dir "$_toolchain_"/arm-linux-androideabi --api 21 --force   
+        --install-dir "$_toolchain_"/arm-linux-androideabi --api 21 --force   > /dev/null 2> /dev/null 
 
 
 
@@ -141,20 +141,20 @@ if [ "$full""x" == "1x" ]; then
     # --- YASM ---
     cd $_s_
     rm -Rf yasm
-    git clone --depth=1 --branch=v1.3.0 https://github.com/yasm/yasm.git
+    git clone --depth=1 --branch=v1.3.0 https://github.com/yasm/yasm.git > /dev/null 2> /dev/null
     cd $_s_/yasm/;autoreconf -fi
     rm -Rf "$_BLD_"
     mkdir -p "$_BLD_"
     cd "$_BLD_";$_s_/yasm/configure --prefix="$_toolchain_"/arm-linux-androideabi/sysroot/usr \
         --disable-shared --disable-soname-versions --host=arm-linux-androideabi \
-        --with-sysroot="$_toolchain_"/arm-linux-androideabi/sysroot
+        --with-sysroot="$_toolchain_"/arm-linux-androideabi/sysroot > /dev/null 2> /dev/null
     cd "$_BLD_"
-    make -j $_CPUS_
+    make -j $_CPUS_ > /dev/null 2> /dev/null
     ret_=$?
     if [ $ret -ne 0 ]; then
         sleep 10
-        make clean
-        make -j $_CPUS_ || exit 1
+        make clean > /dev/null 2> /dev/null
+        make -j $_CPUS_  > /dev/null 2> /dev/null || exit 1
     fi
     cd "$_BLD_";make install
     # --- YASM ---
