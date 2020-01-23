@@ -20,15 +20,15 @@ mkdir -p /data/
 mkdir -p /repo/
 
 cp -av android_stuff.sh /data/android_stuff.sh 2>/dev/null # only valid for CI
-cp -a abseil-cpp ./repo/ 2>/dev/null # only valid for CI
-cp -a *.sh /repo/ 2>/dev/null # only valid for CI
-cp -a *.cpp /repo/ 2>/dev/null # only valid for CI
-cp -a ./.git /repo/ 2>/dev/null # only valid for CI
-cp -a ./.gitmodules /repo/ 2>/dev/null # only valid for CI
-cp -a cross /repo/ 2>/dev/null # only valid for CI
-cp -a meson.build /repo/ 2>/dev/null # only valid for CI
-cp -a third_party /repo/ 2>/dev/null # only valid for CI
-cp -a webrtc /repo/ 2>/dev/null # only valid for CI
+cp -a ../abseil-cpp ./repo/ 2>/dev/null # only valid for CI
+cp -a ../*.sh /repo/ 2>/dev/null # only valid for CI
+cp -a ../*.cpp /repo/ 2>/dev/null # only valid for CI
+cp -a .././.git /repo/ 2>/dev/null # only valid for CI
+cp -a .././.gitmodules /repo/ 2>/dev/null # only valid for CI
+cp -a ../cross /repo/ 2>/dev/null # only valid for CI
+cp -a ../meson.build /repo/ 2>/dev/null # only valid for CI
+cp -a ../third_party /repo/ 2>/dev/null # only valid for CI
+cp -a ../webrtc /repo/ 2>/dev/null # only valid for CI
 
 export DEBIAN_FRONTEND=noninteractive
 export DEBIAN_PRIORITY=critical
