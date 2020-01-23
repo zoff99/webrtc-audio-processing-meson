@@ -9,5 +9,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: build for linux
+    - name: build for android
       run: bash ./run_in_docker.sh "githubworkflow"
