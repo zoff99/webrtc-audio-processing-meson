@@ -39,9 +39,8 @@ export AND_CC="$_toolchain_/arm-linux-androideabi/bin/arm-linux-androideabi-clan
 export AND_GCC="$_toolchain_/arm-linux-androideabi/bin/arm-linux-androideabi-gcc"
 export AND_CXX="$_toolchain_/arm-linux-androideabi/bin/arm-linux-androideabi-clang++"
 export AND_READELF="$_toolchain_/arm-linux-androideabi/bin/arm-linux-androideabi-readelf"
+export AND_STRIP="$_toolchain_/arm-linux-androideabi/bin/arm-linux-androideabi-strip"
 export AND_ARTEFACT_DIR="arm"
-
-
 
 export PATH="$_SDK_"/tools/bin:$ORIG_PATH_
 
@@ -61,7 +60,7 @@ if [ "$full""x" == "1x" ]; then
         curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -o sdk.zip
 
         cd $WRKSPACEDIR
-        curl http://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip -o android-ndk-r13b-linux-x86_64.zip
+        curl https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip -o android-ndk-r13b-linux-x86_64.zip
     fi
 
     cd $WRKSPACEDIR
@@ -105,17 +104,17 @@ if [ "$full""x" == "1x" ]; then
 
     cd $WRKSPACEDIR
     # --- verfiy NDK package ---
-    echo '3524d7f8fca6dc0d8e7073a7ab7f76888780a22841a6641927123146c3ffd29c  android-ndk-r13b-linux-x86_64.zip' \
-        > android-ndk-r13b-linux-x86_64.zip.sha256
-    sha256sum -c android-ndk-r13b-linux-x86_64.zip.sha256 || exit 1
+    #echo '3524d7f8fca6dc0d8e7073a7ab7f76888780a22841a6641927123146c3ffd29c  android-ndk-r13b-linux-x86_64.zip' \
+    #    > android-ndk-r13b-linux-x86_64.zip.sha256
+    #sha256sum -c android-ndk-r13b-linux-x86_64.zip.sha256 || exit 1
     # --- verfiy NDK package ---
     unzip android-ndk-r13b-linux-x86_64.zip
     rm -Rf "$_NDK_"
-    mv -v android-ndk-r13b "$_NDK_"
+    mv -v android-ndk-r??? "$_NDK_"
 
 
 
-    echo 'export ARTEFACT_DIR="$AND_ARTEFACT_DIR";export PATH="$AND_PATH";export PKG_CONFIG_PATH="$AND_PKG_CONFIG_PATH";export READELF="$AND_READELF";export GCC="$AND_GCC";export CC="$AND_CC";export CXX="$AND_CXX";export CPPFLAGS="";export LDFLAGS="";export TOOLCHAIN_ARCH="$AND_TOOLCHAIN_ARCH";export TOOLCHAIN_ARCH2="$AND_TOOLCHAIN_ARCH2"' > $_HOME_/pp
+    echo 'export ARTEFACT_DIR="$AND_ARTEFACT_DIR";export PATH="$AND_PATH";export PKG_CONFIG_PATH="$AND_PKG_CONFIG_PATH";export READELF="$AND_READELF";export STRIP="$AND_STRIP";export GCC="$AND_GCC";export CC="$AND_CC";export CXX="$AND_CXX";export CPPFLAGS="";export LDFLAGS="";export TOOLCHAIN_ARCH="$AND_TOOLCHAIN_ARCH";export TOOLCHAIN_ARCH2="$AND_TOOLCHAIN_ARCH2"' > $_HOME_/pp
     chmod u+x $_HOME_/pp
     rm -Rf "$_s_"
     mkdir -p "$_s_"
@@ -132,7 +131,7 @@ if [ "$full""x" == "1x" ]; then
 
     mkdir -p "$PKG_CONFIG_PATH"
     $_NDK_/build/tools/make_standalone_toolchain.py --arch "$TOOLCHAIN_ARCH" \
-        --install-dir "$_toolchain_"/arm-linux-androideabi --api 12 --force   
+        --install-dir "$_toolchain_"/arm-linux-androideabi --api 21 --force   
 
 
 
@@ -162,3 +161,4 @@ if [ "$full""x" == "1x" ]; then
     fi
 
 fi
+
