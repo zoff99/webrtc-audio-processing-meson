@@ -14,7 +14,12 @@ echo '
 
 id -a
 pwd
+echo "--------"
 ls -al ./
+echo "--------"
+ls -al ../
+echo "--------"
+
 
 mkdir -p /data/
 mkdir -p /repo/
