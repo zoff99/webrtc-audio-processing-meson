@@ -81,12 +81,24 @@ libwebrtc_audio_processing = static_library(
   # link_args: '-lpthread'
   #cpp_args: internal_args,
 )
-executable('aec_test', ['aec_test.cpp'],
-    link_with: [libwebrtc_audio_processing],
-    include_directories: inc_common,
-    cpp_args: '-DQT_NO_KEYWORDS',
-    # link_args: '-lpthread' # Hack, should be exported by libwebrtc
+
+libaec = shared_library(
+  'aec',
+  ['aec_test.cpp'],
+  include_directories : [inc_common],
+  link_with: [libwebrtc_audio_processing],
+  cpp_args: '-DQT_NO_KEYWORDS',
+  link_args: '-Wl,-soname,libaec.so'
 )
+
+
+
+#executable('aec_test', ['aec_test.cpp'],
+#    link_with: [libwebrtc_audio_processing],
+#    include_directories: inc_common,
+#    cpp_args: '-DQT_NO_KEYWORDS',
+#    # link_args: '-lpthread' # Hack, should be exported by libwebrtc
+#)
 
 #all_libraries += libaudio_processing
 

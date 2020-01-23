@@ -140,9 +140,30 @@ ls -hal /data/work/webrtc-audio-processing-meson/armv7a-build/libwebrtc_audio_pr
 cp -av /data/work/webrtc-audio-processing-meson/armv7a-build/libwebrtc_audio_processing.a /data/
 chmod a+rwx /data/libwebrtc_audio_processing.a
 
-ls -al /data/work/webrtc-audio-processing-meson/armv7a-build/aec_test || exit 1
-cp -av /data/work/webrtc-audio-processing-meson/armv7a-build/aec_test /data/
-chmod a+rwx /data/aec_test
+ls -al /data/work/webrtc-audio-processing-meson/armv7a-build/libaec.so || exit 1
+cp -av /data/work/webrtc-audio-processing-meson/armv7a-build/libaec.so /data/
+chmod a+rwx /data/libaec.so
+
+#export V=1
+
+#arm-linux-androideabi-clang++ -O3 -g -shared -Wall -Wextra \
+#    -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function \
+#    -Wno-pointer-sign -Wno-unused-but-set-variable \
+#    -funwind-tables -Wl,--no-merge-exidx-entries -Wl,-soname,libaec.so \
+#    aec_test.cpp -o libaec.so \
+#    -std=gnu99 -I/data/inst/toolchains/arm-linux-androideabi/sysroot/usr/include \
+#    /data/work/webrtc-audio-processing-meson/armv7a-build/libwebrtc_audio_processing.a \
+#    -lm
+
+#/data/inst/toolchains//arm-linux-androideabi/bin/arm-linux-androideabi-clang++ \
+#  -O3 -g -shared -Wall -Wextra     \
+#  -DWEBRTC_APM_DEBUG_DUMP=0 \
+#  -DQT_NO_KEYWORDS \
+#  -funwind-tables -Wl,--no-merge-exidx-entries -Wl,-soname,libaec.so \
+#  aec_test.cpp -o libaec.so   \
+#  -std=c++17 -I/data/inst/toolchains/arm-linux-androideabi/sysroot/usr/include \
+#  /data/work/webrtc-audio-processing-meson/armv7a-build/libwebrtc_audio_processing.a  \
+#  -lm -I./webrtc/ -I./abseil-cpp/
 
 ' > ./data/runme.sh
 
