@@ -78,14 +78,14 @@ libwebrtc_audio_processing = static_library(
   'webrtc_audio_processing',
   webrtc_files,
   include_directories : [inc_common],
-  link_args: '-lpthread'
+  # link_args: '-lpthread'
   #cpp_args: internal_args,
 )
 executable('aec_test', ['aec_test.cpp'],
     link_with: [libwebrtc_audio_processing],
     include_directories: inc_common,
     cpp_args: '-DQT_NO_KEYWORDS',
-    link_args: '-lpthread' # Hack, should be exported by libwebrtc
+    # link_args: '-lpthread' # Hack, should be exported by libwebrtc
 )
 
 #all_libraries += libaudio_processing
