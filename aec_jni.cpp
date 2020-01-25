@@ -8,6 +8,17 @@
 
 #include "webrtc/modules/audio_processing/audio_processing_impl.h"
 
+
+const char *LOGTAG = "trifa.aec";
+
+struct webrtc_aec *aec_context;
+
+uint8_t *audio_buffer[1];
+long audio_buffer_size[1];
+uint8_t *audio_rec_buffer[1];
+long audio_rec_buffer_size[1];
+
+
 // -----------------------------------
 // -----------------------------------
 
@@ -44,7 +55,10 @@ auto CreateApm(bool mobile_aec, int channels, int samplingfreq, int channels_rec
 */
 
     ProcessingConfig processing_config = {
-        {{32000, 1}, {32000, 1}, {32000, 1}, {32000, 1}}};
+        {{samplingfreq_rec, static_cast<size_t>(channels_rec)},
+         {samplingfreq_rec, static_cast<size_t>(channels_rec)},
+         {samplingfreq, static_cast<size_t>(channels)},
+         {samplingfreq, static_cast<size_t>(channels)}}};
 
     if (apm->Initialize(processing_config) != 0) {
         return nullptr;
@@ -66,6 +80,50 @@ auto CreateApm(bool mobile_aec, int channels, int samplingfreq, int channels_rec
     return apm;
 }
 
+
+
+void SetFrameSampleRate(AudioFrame* frame, int sample_rate_hz) {
+  frame->sample_rate_hz_ = sample_rate_hz;
+  frame->samples_per_channel_ =
+      AudioProcessing::kChunkSizeMs * sample_rate_hz / 1000;
+}
+
+
+void AudioPlay(AudioProcessing* apm) {
+    using webrtc::AudioFrame;
+    using webrtc::AudioProcessingStats;
+
+    // Set up audioframe
+    AudioFrame frame;
+    frame.num_channels_ = 1;
+    SetFrameSampleRate(&frame, AudioProcessing::NativeRate::kSampleRate16kHz);
+
+    int16_t* ptr = frame.mutable_data();
+    for (size_t i = 0; i < frame.kMaxDataSizeSamples; i++) {
+        ptr[i] = audio_buffer[0][i];
+    }
+
+    apm->ProcessReverseStream(&frame);
+}
+
+void AudioRecord(AudioProcessing* apm) {
+    using webrtc::AudioFrame;
+    using webrtc::AudioProcessingStats;
+
+    // Set up audioframe
+    AudioFrame frame;
+    frame.num_channels_ = 1;
+    SetFrameSampleRate(&frame, AudioProcessing::NativeRate::kSampleRate16kHz);
+
+    int16_t* ptr = frame.mutable_data();
+    for (size_t i = 0; i < frame.kMaxDataSizeSamples; i++) {
+        ptr[i] = audio_rec_buffer[0][i];
+    }
+
+    apm->set_stream_delay_ms(80);
+    apm->ProcessStream(&frame);
+}
+
 } // end namespace
 
 // -----------------------------------
@@ -75,15 +133,6 @@ auto CreateApm(bool mobile_aec, int channels, int samplingfreq, int channels_rec
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-const char *LOGTAG = "trifa.aec";
-
-struct webrtc_aec *aec_context;
-
-uint8_t *audio_buffer[1];
-long audio_buffer_size[1];
-uint8_t *audio_rec_buffer[1];
-long audio_rec_buffer_size[1];
 
 
 // ----- function defs ------
@@ -138,6 +187,18 @@ void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_init(JNIEnv * env,
         __android_log_print(ANDROID_LOG_INFO, LOGTAG, "init:CreateApm:%p", context->proc);
     }
 
+}
+
+void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_play(JNIEnv * env, jobject obj)
+{
+    auto context = static_cast<AudioProcessingContext*>(aec_context);
+    ::AudioPlay(context->proc);
+}
+
+void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_record(JNIEnv * env, jobject obj)
+{
+    auto context = static_cast<AudioProcessingContext*>(aec_context);
+    ::AudioRecord(context->proc);
 }
 
 void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_destroy(JNIEnv * env, jobject obj)
