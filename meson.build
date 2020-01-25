@@ -94,7 +94,7 @@ libaec = shared_library(
   include_directories : [inc_common],
   link_with: [libwebrtc_audio_processing],
   cpp_args: '-DQT_NO_KEYWORDS',
-  link_args: '-Wl,-soname,libaec.so'
+  link_args: ['-Wl,-soname,libaec.so', '-llog']
 )
 
 
