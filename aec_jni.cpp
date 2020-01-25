@@ -17,6 +17,7 @@ uint8_t *audio_buffer[1];
 long audio_buffer_size[1];
 uint8_t *audio_rec_buffer[1];
 long audio_rec_buffer_size[1];
+int audio_delay_in_ms = 0;
 
 
 // -----------------------------------
@@ -120,7 +121,7 @@ void AudioRecord(AudioProcessing* apm) {
         ptr[i] = audio_rec_buffer[0][i];
     }
 
-    apm->set_stream_delay_ms(80);
+    apm->set_stream_delay_ms(audio_delay_in_ms);
     apm->ProcessStream(&frame);
 }
 
@@ -187,6 +188,12 @@ void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_init(JNIEnv * env,
         __android_log_print(ANDROID_LOG_INFO, LOGTAG, "init:CreateApm:%p", context->proc);
     }
 
+}
+
+void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_set_1audio_1delay(JNIEnv * env, jobject obj,
+                                                                   jint delay_ms)
+{
+    audio_delay_in_ms = delay_ms;
 }
 
 void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_play(JNIEnv * env, jobject obj)
