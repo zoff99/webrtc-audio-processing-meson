@@ -62,6 +62,8 @@ ninja-build > /dev/null 2> /dev/null
 apt-get -y --force-yes remove meson > /dev/null 2> /dev/null
 apt-get -y --force-yes remove ninja-build > /dev/null 2> /dev/null
 
+# apt-get -y --force-yes install default-jre > /dev/null 2> /dev/null
+
 mkdir -p /data/
 
 cd /data/ && mkdir -p work/

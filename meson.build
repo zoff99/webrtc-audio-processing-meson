@@ -57,9 +57,13 @@ webrtc_files += files(
 webrtc_files += files(
     'abseil-cpp/absl/types/bad_optional_access.cc',
     'abseil-cpp/absl/base/internal/throw_delegate.cc',
+    'abseil-cpp/absl/base/internal/cycleclock.cc',
     'abseil-cpp/absl/strings/string_view.cc',
     'abseil-cpp/absl/strings/internal/memutil.cc',
     'abseil-cpp/absl/strings/ascii.cc',
+    'abseil-cpp/absl/strings/str_cat.cc',
+    'abseil-cpp/absl/flags/internal/flag.cc',
+    'abseil-cpp/absl/synchronization/mutex.cc',
 )
 
 webrtc_files += files(
@@ -82,11 +86,14 @@ if host_machine.cpu() == 'x86_64'
     )
 endif
 
+
+
 libwebrtc_audio_processing = static_library(
   'webrtc_audio_processing',
   webrtc_files,
   include_directories : [inc_common],
 )
+
 
 libaec = shared_library(
   'aec',
