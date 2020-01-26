@@ -15,8 +15,10 @@ struct webrtc_aec *aec_context;
 
 uint8_t *audio_buffer[1];
 long audio_buffer_size[1];
+int audio_buffer_offset[1];
 uint8_t *audio_rec_buffer[1];
 long audio_rec_buffer_size[1];
+int audio_rec_buffer_offset[1];
 int audio_delay_in_ms = 0;
 
 
@@ -102,6 +104,12 @@ void AudioPlay(AudioProcessing* apm) {
     int16_t* ptr = frame.mutable_data();
     for (size_t i = 0; i < frame.kMaxDataSizeSamples; i++) {
         ptr[i] = audio_buffer[0][i];
+#if 0
+        if (i < 8)
+        {
+            __android_log_print(ANDROID_LOG_INFO, LOGTAG, "c_play: i=%d b=%d", static_cast<int>(i), static_cast<int>(audio_buffer[0][i]));
+        }
+#endif
     }
 
     apm->ProcessReverseStream(&frame);
@@ -119,6 +127,12 @@ void AudioRecord(AudioProcessing* apm) {
     int16_t* ptr = frame.mutable_data();
     for (size_t i = 0; i < frame.kMaxDataSizeSamples; i++) {
         ptr[i] = audio_rec_buffer[0][i];
+#if 0
+        if (i < 8)
+        {
+            __android_log_print(ANDROID_LOG_INFO, LOGTAG, "c_rec: i=%d b=%d", static_cast<int>(i), static_cast<int>(audio_rec_buffer[0][i]));
+        }
+#endif
     }
 
     apm->set_stream_delay_ms(audio_delay_in_ms);
@@ -144,26 +158,30 @@ Java_com_zoffcc_applications_nativeaudio_AudioProcessing_set_1JNI_1audio_1rec_1b
                                                                                   jobject obj,
                                                                                   jobject buffer,
                                                                                   jlong buffer_size_in_bytes,
-                                                                                  jint num)
+                                                                                  jint num,
+                                                                                  jint buffer_offset)
 {
     __android_log_print(ANDROID_LOG_INFO, LOGTAG, "set_audio_rec_buffer");
 
     audio_rec_buffer[num] = (uint8_t *) (*env).GetDirectBufferAddress(buffer);
     jlong capacity = buffer_size_in_bytes;
     audio_rec_buffer_size[num] = (long) capacity;
+    audio_rec_buffer_offset[num] = buffer_offset;
 }
 
 void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_set_1JNI_1audio_1buffer(JNIEnv *env,
                                                                                   jobject obj,
                                                                                   jobject buffer,
                                                                                   jlong buffer_size_in_bytes,
-                                                                                  jint num)
+                                                                                  jint num,
+                                                                                  jint buffer_offset)
 {
     __android_log_print(ANDROID_LOG_INFO, LOGTAG, "set_audio_buffer");
 
     audio_buffer[num] = (uint8_t *) (*env).GetDirectBufferAddress(buffer);
     jlong capacity = buffer_size_in_bytes;
     audio_buffer_size[num] = (long) capacity;
+    audio_buffer_offset[num] = buffer_offset;
 }
 
 void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_init(JNIEnv * env, jobject obj,
