@@ -102,14 +102,8 @@ void AudioPlay(AudioProcessing* apm) {
     SetFrameSampleRate(&frame, AudioProcessing::NativeRate::kSampleRate16kHz);
 
     int16_t* ptr = frame.mutable_data();
-    for (size_t i = 0; i < frame.kMaxDataSizeSamples; i++) {
+    for (size_t i = 0; i < 160; i++) {
         ptr[i] = audio_buffer[0][i];
-#if 0
-        if (i < 8)
-        {
-            __android_log_print(ANDROID_LOG_INFO, LOGTAG, "c_play: i=%d b=%d", static_cast<int>(i), static_cast<int>(audio_buffer[0][i]));
-        }
-#endif
     }
 
     apm->ProcessReverseStream(&frame);
@@ -125,18 +119,19 @@ void AudioRecord(AudioProcessing* apm) {
     SetFrameSampleRate(&frame, AudioProcessing::NativeRate::kSampleRate16kHz);
 
     int16_t* ptr = frame.mutable_data();
-    for (size_t i = 0; i < frame.kMaxDataSizeSamples; i++) {
+    for (size_t i = 0; i < 160; i++) {
         ptr[i] = audio_rec_buffer[0][i];
-#if 0
-        if (i < 8)
-        {
-            __android_log_print(ANDROID_LOG_INFO, LOGTAG, "c_rec: i=%d b=%d", static_cast<int>(i), static_cast<int>(audio_rec_buffer[0][i]));
-        }
-#endif
     }
+
+    memset(audio_rec_buffer[0], 0, 320); // clear C buffer, to see if there is some actual change
 
     apm->set_stream_delay_ms(audio_delay_in_ms);
     apm->ProcessStream(&frame);
+
+    for (size_t i = 0; i < 160; i++) {
+        audio_rec_buffer[0][i] = ptr[i];
+    }
+
 }
 
 } // end namespace
