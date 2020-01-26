@@ -13,10 +13,10 @@ const char *LOGTAG = "trifa.aec";
 
 struct webrtc_aec *aec_context;
 
-uint8_t *audio_buffer[1];
+int16_t *audio_buffer[1];
 long audio_buffer_size[1];
 int audio_buffer_offset[1];
-uint8_t *audio_rec_buffer[1];
+int16_t *audio_rec_buffer[1];
 long audio_rec_buffer_size[1];
 int audio_rec_buffer_offset[1];
 int audio_delay_in_ms = 0;
@@ -41,6 +41,7 @@ auto CreateApm(bool mobile_aec, int channels, int samplingfreq, int channels_rec
 
     auto apm = AudioProcessingBuilder().Create(old_config);
     if (!apm) {
+        __android_log_print(ANDROID_LOG_INFO, LOGTAG, "CreateApm:Create:error");
         return apm;
     }
 
@@ -64,20 +65,21 @@ auto CreateApm(bool mobile_aec, int channels, int samplingfreq, int channels_rec
          {samplingfreq, static_cast<size_t>(channels)}}};
 
     if (apm->Initialize(processing_config) != 0) {
+        __android_log_print(ANDROID_LOG_INFO, LOGTAG, "CreateApm:Initialize:error");
         return nullptr;
     }
 
     // Disable all components except for an AEC and the residual echo detector.
     AudioProcessing::Config apm_config;
     apm_config.residual_echo_detector.enabled = true;
-    apm_config.high_pass_filter.enabled = false;
-    apm_config.gain_controller1.enabled = false;
-    apm_config.gain_controller2.enabled = false;
+    apm_config.high_pass_filter.enabled = true;
+    apm_config.gain_controller1.enabled = true;
+    apm_config.gain_controller2.enabled = true;
     apm_config.echo_canceller.enabled = true;
     apm_config.echo_canceller.mobile_mode = mobile_aec;
-    apm_config.noise_suppression.enabled = false;
-    apm_config.level_estimation.enabled = false;
-    apm_config.voice_detection.enabled = false;
+    apm_config.noise_suppression.enabled = true;
+    apm_config.level_estimation.enabled = true;
+    apm_config.voice_detection.enabled = true;
     apm->ApplyConfig(apm_config);
 
     return apm;
@@ -96,6 +98,8 @@ void AudioPlay(AudioProcessing* apm) {
     using webrtc::AudioFrame;
     using webrtc::AudioProcessingStats;
 
+    int apm_return_code = 0;
+
     // Set up audioframe
     AudioFrame frame;
     frame.num_channels_ = 1;
@@ -106,12 +110,15 @@ void AudioPlay(AudioProcessing* apm) {
         ptr[i] = audio_buffer[0][i];
     }
 
-    apm->ProcessReverseStream(&frame);
+    apm_return_code = apm->ProcessReverseStream(&frame);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioPlay:res=%d", apm_return_code);
 }
 
 void AudioRecord(AudioProcessing* apm) {
     using webrtc::AudioFrame;
     using webrtc::AudioProcessingStats;
+
+    int apm_return_code = 0;
 
     // Set up audioframe
     AudioFrame frame;
@@ -123,13 +130,64 @@ void AudioRecord(AudioProcessing* apm) {
         ptr[i] = audio_rec_buffer[0][i];
     }
 
-    apm->set_stream_delay_ms(audio_delay_in_ms);
-    apm->ProcessStream(&frame);
+    apm_return_code = apm->set_stream_delay_ms(audio_delay_in_ms);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:set_stream_delay_ms:res=%d", apm_return_code);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:set_stream_delay_ms:value=%d", audio_delay_in_ms);
+
+    apm_return_code = apm->ProcessStream(&frame);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:res=%d", apm_return_code);
+
+    int num_changed = 0;
 
     for (size_t i = 0; i < 160; i++) {
+        if (audio_rec_buffer[0][i] != ptr[i])
+        {
+            num_changed++;
+        }
         audio_rec_buffer[0][i] = ptr[i];
     }
+    
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:num_changed=%d", num_changed);
 
+    AudioProcessingStats stats = apm->GetStatistics();
+    if (stats.delay_median_ms.has_value())
+    {
+        int32_t median = *stats.delay_median_ms;
+        __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.delay_median_ms=%d", median);
+    }
+
+    if (stats.delay_standard_deviation_ms.has_value())
+    {
+        int32_t delay_standard_deviation_ms = *stats.delay_standard_deviation_ms;
+        __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.delay_standard_deviation_ms=%d", delay_standard_deviation_ms);
+    }
+
+    if (stats.delay_ms.has_value())
+    {
+        int32_t delay_ms = *stats.delay_ms;
+        __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.delay_ms=%d", delay_ms);
+    }
+
+    if (stats.output_rms_dbfs.has_value())
+    {
+        int output_rms_dbfs = *stats.output_rms_dbfs;
+        __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.output_rms_dbfs=%d", output_rms_dbfs);
+    }
+
+    const float echo_return_loss = stats.echo_return_loss.value_or(-1.0f);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.echo_return_loss=%f", echo_return_loss);
+    const float echo_return_loss_enhancement =
+        stats.echo_return_loss_enhancement.value_or(-1.0f);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.echo_return_loss_enhancement=%f", echo_return_loss_enhancement);
+    const float divergent_filter_fraction =
+        stats.divergent_filter_fraction.value_or(-1.0f);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.divergent_filter_fraction=%f", divergent_filter_fraction);
+    const float residual_echo_likelihood =
+        stats.residual_echo_likelihood.value_or(-1.0f);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.residual_echo_likelihood=%f", residual_echo_likelihood);
+    const float residual_echo_likelihood_recent_max =
+        stats.residual_echo_likelihood_recent_max.value_or(-1.0f);
+    __android_log_print(ANDROID_LOG_INFO, LOGTAG, "AudioRecord:stats.residual_echo_likelihood_recent_max=%f", residual_echo_likelihood_recent_max);
 }
 
 } // end namespace
@@ -156,7 +214,7 @@ Java_com_zoffcc_applications_nativeaudio_AudioProcessing_set_1JNI_1audio_1rec_1b
 {
     __android_log_print(ANDROID_LOG_INFO, LOGTAG, "set_audio_rec_buffer");
 
-    audio_rec_buffer[num] = (uint8_t *) (*env).GetDirectBufferAddress(buffer);
+    audio_rec_buffer[num] = (int16_t *) (*env).GetDirectBufferAddress(buffer);
     jlong capacity = buffer_size_in_bytes;
     audio_rec_buffer_size[num] = (long) capacity;
     audio_rec_buffer_offset[num] = buffer_offset;
@@ -171,7 +229,7 @@ void Java_com_zoffcc_applications_nativeaudio_AudioProcessing_set_1JNI_1audio_1b
 {
     __android_log_print(ANDROID_LOG_INFO, LOGTAG, "set_audio_buffer");
 
-    audio_buffer[num] = (uint8_t *) (*env).GetDirectBufferAddress(buffer);
+    audio_buffer[num] = (int16_t *) (*env).GetDirectBufferAddress(buffer);
     jlong capacity = buffer_size_in_bytes;
     audio_buffer_size[num] = (long) capacity;
     audio_buffer_offset[num] = buffer_offset;
