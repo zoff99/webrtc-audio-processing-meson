@@ -123,8 +123,6 @@ void AudioRecord(AudioProcessing* apm) {
         ptr[i] = audio_rec_buffer[0][i];
     }
 
-    memset(audio_rec_buffer[0], 0, 320); // clear C buffer, to see if there is some actual change
-
     apm->set_stream_delay_ms(audio_delay_in_ms);
     apm->ProcessStream(&frame);
 
